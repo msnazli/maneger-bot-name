@@ -1,0 +1,35 @@
+body {
+  font-family: 'IRANSans', sans-serif;
+  direction: rtl;
+}
+
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 250px;
+  background-color: #007bff;
+  padding: 20px;
+  color: white;
+}
+
+.content {
+  margin-right: 250px;
+  padding: 20px;
+}
+
+.card {
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn {
+  border-radius: 10px;
+}
