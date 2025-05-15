@@ -19,69 +19,83 @@ const App = () => {
   const [logs, setLogs] = useState(['کاربر جدید وارد شد', 'نام جدید تولید شد']);
 
   // تابع ورود با تلگرام
-  const handleTelegramLogin = (user) => {
+
+  window.handleTelegramLogin = (user) => {
+  console.log('Telegram User:', user);
+  if (user.id) {
+    setIsAuthenticated(true);
+    setLogs([...logs, `ورود مدیر: ${user.first_name}`]);
+  }
+};
+
+useEffect(() => {
+  // تعریف تابع به صورت global
+  window.handleTelegramLogin = (user) => {
     console.log('Telegram User:', user);
     if (user.id) {
       setIsAuthenticated(true);
-      setLogs([...logs, `ورود مدیر: ${user.first_name}`]);
+      setLogs((prevLogs) => [...prevLogs, `ورود مدیر: ${user.first_name}`]);
     }
   };
 
-  useEffect(() => {
-    // لود اسکریپت تلگرام
-    const script = document.createElement('script');
-    script.src = 'https://telegram.org/js/telegram-widget.js?22';
-    script.async = true;
-    script.setAttribute('data-telegram-login', 'YourBotName');
-    script.setAttribute('data-size', 'large');
-    script.setAttribute('data-onauth', 'handleTelegramLogin(user)');
-    document.getElementById('telegram-login').appendChild(script);
+  // لود اسکریپت تلگرام
+  const script = document.createElement('script');
+  script.src = 'https://telegram.org/js/telegram-widget.js?22';
+  script.async = true;
+  script.setAttribute('data-telegram-login', 'YourBotName');
+  script.setAttribute('data-size', 'large');
+  script.setAttribute('data-onauth', 'handleTelegramLogin(user)');
+  document.getElementById('telegram-login').appendChild(script);
 
-    // دریافت آمار از بک‌اند
-    axios.get('https://your-backend-url/stats') // URL بک‌اند رو جایگزین کنید
-      .then(response => {
-        setUsers(response.data.users);
-        setSearches(response.data.searches);
-        setRevenue(response.data.revenue);
-      })
-      .catch(error => console.error('Error fetching stats:', error));
+  // دریافت آمار از بک‌اند
+  axios.get('https://your-backend-url/stats')
+    .then(response => {
+      setUsers(response.data.users || 1200);
+      setSearches(response.data.searches || 4500);
+      setRevenue(response.data.revenue || 15000000);
+    })
+    .catch(error => console.error('Error fetching stats:', error));
 
-    // نمودارهای رشد
-    const ctxUser = document.getElementById('userGrowthChart')?.getContext('2d');
-    const ctxRevenue = document.getElementById('revenueGrowthChart')?.getContext('2d');
-    const ctxSearch = document.getElementById('searchGrowthChart')?.getContext('2d');
+  // نمودارهای رشد
+  const ctxUser = document.getElementById('userGrowthChart')?.getContext('2d');
+  const ctxRevenue = document.getElementById('revenueGrowthChart')?.getContext('2d');
+  const ctxSearch = document.getElementById('searchGrowthChart')?.getContext('2d');
 
-    if (ctxUser) {
-      new Chart(ctxUser, {
-        type: 'line',
-        data: {
-          labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد'],
-          datasets: [{ label: 'کاربران', data: [500, 700, 900, 1000, 1200], borderColor: '#3B82F6' }]
-        },
-        options: { scales: { y: { beginAtZero: true } } }
-      });
-    }
-    if (ctxRevenue) {
-      new Chart(ctxRevenue, {
-        type: 'line',
-        data: {
-          labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد'],
-          datasets: [{ label: 'درآمد (تومان)', data: [5000000, 7000000, 10000000, 12000000, 15000000], borderColor: '#10B981' }]
-        },
-        options: { scales: { y: { beginAtZero: true } } }
-      });
-    }
-    if (ctxSearch) {
-      new Chart(ctxSearch, {
-        type: 'line',
-        data: {
-          labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد'],
-          datasets: [{ label: 'جستجوها', data: [1500, 2000, 3000, 4000, 4500], borderColor: '#F59E0B' }]
-        },
-        options: { scales: { y: { beginAtZero: true } } }
-      });
-    }
-  }, []);
+  if (ctxUser) {
+    new Chart(ctxUser, {
+      type: 'line',
+      data: {
+        labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد'],
+        datasets: [{ label: 'کاربران', data: [500, 700, 900, 1000, 1200], borderColor: '#3B82F6' }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+  }
+  if (ctxRevenue) {
+    new Chart(ctxRevenue, {
+      type: 'line',
+      data: {
+        labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد'],
+        datasets: [{ label: 'درآمد (تومان)', data: [5000000, 7000000, 10000000, 12000000, 15000000], borderColor: '#10B981' }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+  }
+  if (ctxSearch) {
+    new Chart(ctxSearch, {
+      type: 'line',
+      data: {
+        labels: ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد'],
+        datasets: [{ label: 'جستجوها', data: [1500, 2000, 3000, 4000, 4500], borderColor: '#F59E0B' }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  return () => {
+    document.getElementById('telegram-login')?.removeChild(script);
+  };
+}, []);
 
   // تابع اضافه کردن API
   const addApiKey = (type) => {
