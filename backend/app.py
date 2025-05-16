@@ -1,10 +1,19 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from telegram import Bot
 import hmac
 import hashlib
 import json
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='/workspaces/maneger-bot-name/frontend/build', static_url_path='')
+
+# تنظیمات CORS (برای ارتباط فرانت‌اند و بک‌اند)
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST,PATCH,DELETE'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
 
 # تنظیمات اولیه
 TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN"  # توکن ربات تلگرام خودتون رو جایگزین کنید
@@ -111,5 +120,29 @@ def get_users():
 def get_logs():
     return jsonify(db["logs"])
 
+# API routes
+@app.route('/api/test')
+def test():
+    return {'message': 'API is working!'}
+
+# سرو کردن فایل‌های فرانت‌اند
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    file_path = os.path.join(app.static_folder, path)
+    print(f"Requested path: {path}")
+    print(f"File path: {file_path}")
+    print(f"Exists (file): {os.path.isfile(file_path)}")
+    if path and os.path.isfile(file_path):
+        return send_from_directory(app.static_folder, path)
+    index_path = os.path.join(app.static_folder, 'index.html')
+    print(f"Serving index.html from: {index_path}")
+    print(f"Index exists: {os.path.exists(index_path)}")
+    return send_from_directory(app.static_folder, 'index.html')
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    print(f"Static folder: {app.static_folder}")
+    port = int(os.environ.get('PORT', 3000))
+    app.run(host='0.0.0.0', port=port)
+
+print("Checking path:", os.path.join(app.static_folder, 'index.html'))
