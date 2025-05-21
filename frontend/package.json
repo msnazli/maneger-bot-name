@@ -30,12 +30,6 @@
       "react-app/jest"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -46,11 +40,6 @@
       "@svgr/webpack": "^6.5.1",
       "resolve-url-loader": "^5.0.0"
     },
-    "scripts": {
-      "start": "npx serve -s build",
-      "build": "react-scripts build"
-    }
-  },
   "devDependencies": {
     "npm-force-resolutions": "^0.0.10"
   }
